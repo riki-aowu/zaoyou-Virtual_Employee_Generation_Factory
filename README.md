@@ -7,7 +7,10 @@
 - MP4 / WebM 浏览器拆帧，支持有效时间区间与采样 FPS
 - PNG / GIF / WebP 图片或序列导入
 - 18 人 `6×3`、`9×2`、`3×6`、`18×1`、`2×9` 固定布局
-- Batch View 手动画 18 个 Custom Regions，并保存 / 加载 Layout Template
+- Photoshop Slice Tool 式 18 切片系统：创建、选中、拖动、八方向缩放、编号、单独锁定与删除
+- 一键重置为 `6×3`，随后每个切片都可独立调整，不要求等分或铺满输入画面
+- 基础批次 Slice Template 可保存 / 加载并跨动作复用
+- 任一动作可以复制基础模板建立独立 Slice Override，也可随时移除 Override 回退到基础模板
 - 同一动作素材按 Slot 切人，并自动归入 18 个匿名 Visual Asset
 - 四角背景取色、容差与边缘连通抠图
 - Pixel Edge Alpha 量化
@@ -60,6 +63,7 @@ npm run build
 
 - 视频拆帧在浏览器内完成，单个视频最多采样 180 帧，避免页面失控。
 - 当前参数在导入时应用；修改抠图或对齐参数后需重新导入原素材。
-- Custom Regions 必须正好保存 18 个区域后，才会代替默认 `6×3` 布局。
+- 图片与视频拆帧始终读取目标动作当前生效的 Slice Rect；动作 Override 优先于基础模板。
+- 开始拆帧时必须正好有 18 个切片，但切片可以留边距、重叠或使用不同尺寸。
 - 不保存姓名、稀有度、职业、数值、Prompt Anchor 或固定角色绑定。
 - 不修改 Game Core、SQLite、Staff Catalog 或 MCP。
