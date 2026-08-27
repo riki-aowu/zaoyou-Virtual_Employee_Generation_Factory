@@ -1,16 +1,23 @@
 # 造游社 · 员工 Sprite 工厂
 
-独立的像素员工资产加工工具。当前 MVP 支持：
+独立的匿名像素员工资产批量后处理工具。v1.1 以 **18 个固定 Character Slot** 为核心，不负责生成角色或判断员工身份。
 
-- PNG / GIF / WebP 单图或序列导入
-- 按行列拆分 Sprite Sheet
+当前支持：
+
+- MP4 / WebM 浏览器拆帧，支持有效时间区间与采样 FPS
+- PNG / GIF / WebP 图片或序列导入
+- 18 人 `6×3`、`9×2`、`3×6`、`18×1`、`2×9` 固定布局
+- Batch View 手动画 18 个 Custom Regions，并保存 / 加载 Layout Template
+- 同一动作素材按 Slot 切人，并自动归入 18 个匿名 Visual Asset
 - 四角背景取色、容差与边缘连通抠图
 - Pixel Edge Alpha 量化
 - 80×96 标准画布、角色高度归一与脚底 / 坐姿锚点
-- 动作时间轴播放、删帧、复制、镜像
+- Frame Review 播放、删坏帧、复制、镜像、推荐采样
 - 帧尺寸、透明边、空帧、尺度与裁切 QA
-- 固定网格 Sprite Sheet PNG + JSON Metadata 导出
-- 含处理后帧的项目 JSON 保存 / 恢复
+- 18 人批量 ZIP：每人独立 Sprite Sheet PNG + JSON Metadata
+- 含处理后帧的批次 JSON 保存 / 恢复
+- 独立 Walk Right；没有素材时可人工选择从 Walk Left 镜像
+- 只读角色生产规范，允许兽耳、人外、异形、外星人、天使、恶魔、植物生命、机械生命与原创克苏鲁式奇异生物
 
 ## 启动
 
@@ -37,6 +44,8 @@ npm run build
 
 ## 生成图片与仓库存储
 
+本工具不调用 AI 生图 / 生视频 API。外部 AI 负责生成 18 人角色图和动作视频，本工具负责拆帧、分人、清理、对齐、按角色合并和导出。
+
 浏览器内生成的 Sprite Sheet 和 JSON 默认下载到本地。静态 GitHub Pages 不持有仓库写权限，因此不会自动提交文件。
 
 推荐流程：
@@ -49,7 +58,8 @@ npm run build
 
 ## 当前边界
 
-- 第一版专注浏览器端 PNG 处理；MP4 / WebM + ffmpeg 拆帧放在后续 P7。
-- 重新处理按钮暂不保留原始高分辨率帧；修改抠图参数后需重新导入原素材。
-- 单次导出生成 PNG 和 JSON 两个下载文件，批量 ZIP 待后续补齐。
+- 视频拆帧在浏览器内完成，单个视频最多采样 180 帧，避免页面失控。
+- 当前参数在导入时应用；修改抠图或对齐参数后需重新导入原素材。
+- Custom Regions 必须正好保存 18 个区域后，才会代替默认 `6×3` 布局。
+- 不保存姓名、稀有度、职业、数值、Prompt Anchor 或固定角色绑定。
 - 不修改 Game Core、SQLite、Staff Catalog 或 MCP。
