@@ -109,6 +109,7 @@ input[type="range"] { padding: 0; accent-color: var(--green); }
 .action-row.active { border-color: var(--green); background: #213027; }
 .active-view { color: #102016; background: var(--green); border-color: #a1e9b5; }
 .slice-scope { padding: 8px 9px; margin-bottom: 8px; color: var(--cyan); background: #101512; border: 1px solid #35423a; border-radius: 3px; font-size: 12px; }
+.slice-scope small { display: block; margin-top: 3px; color: var(--muted); }
 .slice-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 #preview.slice-editing { cursor: crosshair; }
 dialog { width: min(680px, 90vw); color: var(--ink); background: #181d19; border: 1px solid #536057; border-radius: 6px; box-shadow: 0 25px 90px #000c; }
