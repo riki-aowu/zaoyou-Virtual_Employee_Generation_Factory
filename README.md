@@ -15,14 +15,20 @@
 - 点击 Batch View 中的切片会同步选中同编号 Character Slot，不再出现调整 08、底部却仍显示 01 的错位
 - 同一动作素材按 Slot 切人，并自动归入 18 个匿名 Visual Asset
 - 四角背景取色、容差与边缘连通抠图
-- Pixel Edge Alpha 量化
+- 左侧 Batch、Slice、导入、抠像、画布分类均可折叠，展开状态保存在浏览器
+- 每动作独立背景参数；支持四角最接近色组采样、点击取色、白/黑/自定义背景色
+- 像素角色 / 白底插画 / 黑底素材快速预设，以及一键去白边
+- 角色内部浅色保护、RGB Euclidean 颜色距离、边缘溢色去污染、弱透明清理、保守 Alpha 收缩
+- Pixel Edge / Binary Alpha 硬边输出，羽化与 Pixel Edge 互斥
+- Original、Mask、Transparent、Black/White/Checkerboard 预览及 4× Edge Inspection
+- White Fringe、Weak Alpha Halo、Over-Eroded QA
 - 96×112 默认 Source Canvas（可切换 80×96 或自定义）
 - Character → Clip → Frame 三级对齐：角色固定 Canonical Scale、站立 / 坐姿 Pivot、动作 Clip Offset、单帧 Frame Offset
 - 固定尺度管线：只在建立角色基准时计算一次 Scale，不再逐帧按 bbox 缩放或自动居中
 - Raw Slice View / Canonical Canvas View 双视图，以及跨动作 Onion Skin 对齐预览
 - Frame Review 播放、删坏帧、复制、镜像、推荐采样
 - Canonical Scale、Pivot Drift、Clip Boundary、透明边与空帧 QA
-- 18 人批量 ZIP：`game/` 内 Trim Sprite Sheet + 可还原 Canonical 坐标的 JSON，`debug/` 内完整画布与对齐参数
+- 18 人批量 ZIP：`game/` 内 Trim Sprite Sheet + 可还原 Canonical 坐标的 JSON；可选输出 Original / Mask / Clean Debug
 - 含处理后帧的批次 JSON 保存 / 恢复
 - 独立 Walk Right；没有素材时可人工选择从 Walk Left 镜像
 - 只读角色生产规范，允许兽耳、人外、异形、外星人、天使、恶魔、植物生命、机械生命与原创克苏鲁式奇异生物
@@ -68,6 +74,7 @@ npm run build
 
 - 视频拆帧在浏览器内完成，单个视频最多采样 180 帧，避免页面失控。
 - Scale、Pivot、Clip Offset 与 Frame Offset 修改后会立即重建当前角色画布；Slice Rect 修改后点击“应用切片到当前动作”重裁。
+- 去白边算法参数按动作保存；“应用到整个 Batch”只复制算法参数，保留每个动作自己的背景色。
 - 图片与视频拆帧始终读取目标动作当前生效的 Slice Rect；动作 Override 优先于基础模板。
 - 开始拆帧时必须正好有 18 个切片，但切片可以留边距、重叠或使用不同尺寸。
 - 完整视频源帧只保留在当前浏览器内存中；批次 JSON 保存每个 Slot 已裁出的 Raw Slice、Canonical 帧和对齐参数。重新打开批次后可继续对齐，但要再次修改 Slice Rect 仍需重新导入视频源。
