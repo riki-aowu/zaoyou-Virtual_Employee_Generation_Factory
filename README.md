@@ -33,12 +33,14 @@
 - 固定尺度管线：只在建立批次基准时计算一次基础 Scale，不再逐角色或逐帧按 bbox 缩放、自动居中
 - 建立批次统一基础缩放后默认锁定；后续导入动作不会重新计算批次基础比例
 - 每个动作拥有全帧共用的 Action Scale；按参考动作与当前动作 cleaned bbox 中位高度自动估算
+- 动作缩放以手动值为最高优先级；自动算法只生成建议值，点击“采用建议值”后才会写入
 - 同一批 18 个角色共享唯一的 `batchCanonicalScale`，导入、切片和采样都不会再按 Slot 单独自动塞满画布
 - 特殊身高差使用 `characterScaleCorrection`（默认 `1.0`），不同动作来源尺寸漂移使用 `actionScale`（默认 `1.0`）
 - 最终绘制缩放固定为 `batchCanonicalScale × characterScaleCorrection × actionScale`
 - 批次基准取当前参考动作全部角色 cleaned bbox 的中位尺寸，并按安全边距计算一个共享比例
 - 分离检查源切片四边接边与标准画布四边越界，不再静默裁掉头发、兽耳、手部或鞋底
 - Raw Slice View / Canonical Canvas View 双视图，以及跨动作 Onion Skin 对齐预览
+- 可用当前角色已有动作或外部 PNG/WebP 作为校准参考，支持半透明叠加、左右并排、透明度、位置、缩放、脚底锚点对齐与锁定；参考图仅保存于批次预览配置，不进入游戏导出
 - Frame Review 播放、删坏帧、复制、镜像、推荐采样
 - Canonical Scale、Pivot Drift、Clip Boundary、透明边与空帧 QA
 - 18 人批量 ZIP：`game/` 内 Trim Sprite Sheet + 可还原 Canonical 坐标的 JSON；可选输出 Original / Mask / Clean Debug
