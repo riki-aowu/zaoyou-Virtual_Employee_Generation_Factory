@@ -1,6 +1,6 @@
 # 造游社 · 员工 Sprite 工厂
 
-独立的匿名像素员工资产批量后处理工具。v1.1 以 **18 个固定 Character Slot** 为核心，不负责生成角色或判断员工身份。
+独立的匿名像素员工资产批量后处理工具。当前版本以 **18 个固定 Character Slot** 为核心，不负责生成角色或判断员工身份。
 
 当前支持：
 
@@ -16,10 +16,13 @@
 - 同一动作素材按 Slot 切人，并自动归入 18 个匿名 Visual Asset
 - 四角背景取色、容差与边缘连通抠图
 - Pixel Edge Alpha 量化
-- 80×96 标准画布、角色高度归一与脚底 / 坐姿锚点
+- 96×112 默认 Source Canvas（可切换 80×96 或自定义）
+- Character → Clip → Frame 三级对齐：角色固定 Canonical Scale、站立 / 坐姿 Pivot、动作 Clip Offset、单帧 Frame Offset
+- 固定尺度管线：只在建立角色基准时计算一次 Scale，不再逐帧按 bbox 缩放或自动居中
+- Raw Slice View / Canonical Canvas View 双视图，以及跨动作 Onion Skin 对齐预览
 - Frame Review 播放、删坏帧、复制、镜像、推荐采样
-- 帧尺寸、透明边、空帧、尺度与裁切 QA
-- 18 人批量 ZIP：每人独立 Sprite Sheet PNG + JSON Metadata
+- Canonical Scale、Pivot Drift、Clip Boundary、透明边与空帧 QA
+- 18 人批量 ZIP：`game/` 内 Trim Sprite Sheet + 可还原 Canonical 坐标的 JSON，`debug/` 内完整画布与对齐参数
 - 含处理后帧的批次 JSON 保存 / 恢复
 - 独立 Walk Right；没有素材时可人工选择从 Walk Left 镜像
 - 只读角色生产规范，允许兽耳、人外、异形、外星人、天使、恶魔、植物生命、机械生命与原创克苏鲁式奇异生物
@@ -64,9 +67,9 @@ npm run build
 ## 当前边界
 
 - 视频拆帧在浏览器内完成，单个视频最多采样 180 帧，避免页面失控。
-- 当前参数在导入时应用；修改抠图或对齐参数后需重新导入原素材。
+- Scale、Pivot、Clip Offset 与 Frame Offset 修改后会立即重建当前角色画布；Slice Rect 修改后点击“应用切片到当前动作”重裁。
 - 图片与视频拆帧始终读取目标动作当前生效的 Slice Rect；动作 Override 优先于基础模板。
 - 开始拆帧时必须正好有 18 个切片，但切片可以留边距、重叠或使用不同尺寸。
-- 原始视频帧仅保留在当前浏览器内存中，不写入批次 JSON；刷新页面或重新打开旧批次后，需要重新导入一次动作素材才能再次重裁。
+- 完整视频源帧只保留在当前浏览器内存中；批次 JSON 保存每个 Slot 已裁出的 Raw Slice、Canonical 帧和对齐参数。重新打开批次后可继续对齐，但要再次修改 Slice Rect 仍需重新导入视频源。
 - 不保存姓名、稀有度、职业、数值、Prompt Anchor 或固定角色绑定。
 - 不修改 Game Core、SQLite、Staff Catalog 或 MCP。
