@@ -9,6 +9,8 @@
 - 18 人 `6×3`、`9×2`、`3×6`、`18×1`、`2×9` 固定布局
 - Photoshop Slice Tool 式 18 切片系统：创建、选中、拖动、八方向缩放、编号、单独锁定与删除
 - 一键重置为 `6×3`，随后每个切片都可独立调整，不要求等分或铺满输入画面
+- 切片默认自动应用：拖动或缩放时只更新框，松手后仅重算当前动作的当前角色；数值修改采用 200ms 防抖
+- 保留“重新应用当前动作”作为整条动作手动重算兜底
 - 基础批次 Slice Template 可保存 / 加载并跨动作复用
 - 任一动作可以复制基础模板建立独立 Slice Override，也可随时移除 Override 回退到基础模板
 - 导入时在当前浏览器会话保留每个动作的原始拆帧；调整切片后点击“应用切片到当前动作”，会替换旧裁剪结果并立即刷新 Frame Review
@@ -25,6 +27,8 @@
 - 96×112 默认 Source Canvas（可切换 80×96 或自定义）
 - Character → Clip → Frame 三级对齐：角色固定 Canonical Scale、站立 / 坐姿 Pivot、动作 Clip Offset、单帧 Frame Offset
 - 固定尺度管线：只在建立角色基准时计算一次 Scale，不再逐帧按 bbox 缩放或自动居中
+- 角色基准扫描全部已导入站立动作的 cleaned Motion Envelope，并按上下左右安全边距计算统一比例
+- 分离检查源切片四边接边与标准画布四边越界，不再静默裁掉头发、兽耳、手部或鞋底
 - Raw Slice View / Canonical Canvas View 双视图，以及跨动作 Onion Skin 对齐预览
 - Frame Review 播放、删坏帧、复制、镜像、推荐采样
 - Canonical Scale、Pivot Drift、Clip Boundary、透明边与空帧 QA
