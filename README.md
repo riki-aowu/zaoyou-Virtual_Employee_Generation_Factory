@@ -29,12 +29,14 @@
 - Original、Mask、Transparent、Black/White/Checkerboard 预览及 4× Edge Inspection
 - White Fringe、Weak Alpha Halo、Over-Eroded QA
 - 96×112 默认 Source Canvas（可切换 80×96 或自定义）
-- Character → Clip → Frame 三级对齐：角色固定 Canonical Scale、站立 / 坐姿 Pivot、动作 Clip Offset、单帧 Frame Offset
-- 固定尺度管线：只在建立角色基准时计算一次 Scale，不再逐帧按 bbox 缩放或自动居中
-- 建立角色固定缩放后默认锁定；后续导入动作不会重新计算角色级比例
+- Batch → Character → Clip → Frame 四级对齐：批次统一基础缩放、角色身高修正、动作来源缩放、站立 / 坐姿锚点、动作偏移和单帧偏移
+- 固定尺度管线：只在建立批次基准时计算一次基础 Scale，不再逐角色或逐帧按 bbox 缩放、自动居中
+- 建立批次统一基础缩放后默认锁定；后续导入动作不会重新计算批次基础比例
 - 每个动作拥有全帧共用的 Action Scale；按参考动作与当前动作 cleaned bbox 中位高度自动估算
-- 最终绘制缩放固定为 `canonicalScale × actionScale`，既统一角色比例，又消化不同视频的源尺寸差异
-- 角色基准扫描全部已导入站立动作的 cleaned Motion Envelope，并按上下左右安全边距计算统一比例
+- 同一批 18 个角色共享唯一的 `batchCanonicalScale`，导入、切片和采样都不会再按 Slot 单独自动塞满画布
+- 特殊身高差使用 `characterScaleCorrection`（默认 `1.0`），不同动作来源尺寸漂移使用 `actionScale`（默认 `1.0`）
+- 最终绘制缩放固定为 `batchCanonicalScale × characterScaleCorrection × actionScale`
+- 批次基准取当前参考动作全部角色 cleaned bbox 的中位尺寸，并按安全边距计算一个共享比例
 - 分离检查源切片四边接边与标准画布四边越界，不再静默裁掉头发、兽耳、手部或鞋底
 - Raw Slice View / Canonical Canvas View 双视图，以及跨动作 Onion Skin 对齐预览
 - Frame Review 播放、删坏帧、复制、镜像、推荐采样
