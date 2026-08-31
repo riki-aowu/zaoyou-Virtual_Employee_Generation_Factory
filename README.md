@@ -25,6 +25,8 @@
 - 每动作独立背景参数；支持四角最接近色组采样、点击取色、白/黑/自定义背景色
 - 像素角色 / 白底插画 / 黑底素材快速预设，以及一键去白边
 - 角色内部浅色保护、RGB Euclidean 颜色距离、边缘溢色去污染、弱透明清理、保守 Alpha 收缩
+- 当前帧手工精修：点击式浅色连通区域删除、支持容差/连通/非连通/加选/减选的魔棒，以及 1px/2px 最近邻无羽化硬边橡皮擦
+- 手工删除以逐帧遮罩保存并叠加在自动抠图之后；调整自动参数不会覆盖精修，正式导出包含精修结果
 - Pixel Edge / Binary Alpha 硬边输出，羽化与 Pixel Edge 互斥
 - Original、Mask、Transparent、Black/White/Checkerboard 预览及 4× Edge Inspection
 - White Fringe、Weak Alpha Halo、Over-Eroded QA
