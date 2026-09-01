@@ -169,7 +169,8 @@ async function fileToCanvas(file: File) {
       video.onloadedmetadata = () => resolve();
       video.onerror = () => reject(new Error('无法读取视频。'));
     });
-    const requested = Number($('#startTime') instanceof HTMLInputElement ? $('#startTime')!.value : 0) || 0;
+    const startTime = $('#startTime') as HTMLInputElement | null;
+    const requested = Number(startTime?.value || 0) || 0;
     video.currentTime = Math.min(Math.max(0, requested), Math.max(0, video.duration - 0.05));
     await new Promise<void>(resolve => {
       if (video.currentTime === 0) return resolve();
@@ -210,7 +211,7 @@ async function writeBoxesIntoExistingSliceUi(boxes: Box[]) {
     });
     const h = $('#sliceH') as HTMLInputElement | null;
     if (h) dispatchChange(h);
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
   }
 
   if (autoApply) autoApply.checked = wasAuto;
