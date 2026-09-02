@@ -12,6 +12,9 @@ let spaceHeld = false;
 let dragPointer = -1;
 let dragStart = { x: 0, y: 0 };
 let panStart = { x: 0, y: 0 };
+const movementKeys = new Set<string>();
+let movementRaf = 0;
+let movementLast = performance.now();
 
 function previewCanvas() {
   return qs<HTMLCanvasElement>('#preview');
@@ -47,8 +50,8 @@ function updateStatus() {
   }
   if (!status) return;
   if (!zoomInspectionEnabled()) status.textContent = '开启“边缘放大检查”后可拖动画布。';
-  else if (manualToolActive()) status.textContent = '手工工具使用中；按住 Space 拖动，或用鼠标中键拖动画布。';
-  else status.textContent = panMode ? '左键拖动查看尾巴 / 脚 / 边缘；Space 或中键也可拖动。' : '按住 Space 或鼠标中键仍可临时拖动。';
+  else if (manualToolActive()) status.textContent = '精修时：右键拖 / Space+左键拖 / WASD 平移；左键继续使用当前工具。';
+  else status.textContent = panMode ? '左键拖、右键拖或 WASD 查看尾巴 / 脚 / 边缘；双击回到中心。' : '右键拖、Space+左键拖或 WASD 仍可临时平移。';
 }
 
 function resetPan(render = true) {
@@ -85,7 +88,7 @@ CanvasRenderingContext2D.prototype.clearRect = function clearRectPatched(x: numb
 
 function shouldBeginPan(event: PointerEvent) {
   if (!panContextActive()) return false;
-  if (event.button === 1 || spaceHeld) return true;
+  if (event.button === 2 || event.button === 1 || spaceHeld) return true;
   return event.button === 0 && panMode && !manualToolActive();
 }
 
@@ -124,8 +127,36 @@ function endPan(event: PointerEvent) {
   dragging = false;
   dragPointer = -1;
   if (preview.hasPointerCapture(event.pointerId)) preview.releasePointerCapture(event.pointerId);
-  preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : '';
+  preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : manualToolActive() ? 'crosshair' : '';
   updateStatus();
+}
+
+function targetAllowsShortcut(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  if (!el) return true;
+  if (el.matches('input, textarea, select, [contenteditable="true"]')) return false;
+  return true;
+}
+
+function movementStep(now: number) {
+  movementRaf = requestAnimationFrame(movementStep);
+  const dt = Math.min((now - movementLast) / 1000, .05);
+  movementLast = now;
+  if (!panContextActive() || !movementKeys.size) return;
+  let dx = 0;
+  let dy = 0;
+  const speed = 420;
+  if (movementKeys.has('w')) dy += speed * dt;
+  if (movementKeys.has('s')) dy -= speed * dt;
+  if (movementKeys.has('a')) dx += speed * dt;
+  if (movementKeys.has('d')) dx -= speed * dt;
+  if (!dx && !dy) return;
+  const preview = previewCanvas();
+  if (!preview) return;
+  panX += dx;
+  panY += dy;
+  clampPan(preview);
+  requestPreviewRender();
 }
 
 function installUi() {
@@ -145,7 +176,7 @@ function installUi() {
     toggle.type = 'button';
     toggle.onclick = () => {
       panMode = !panMode;
-      preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : '';
+      preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : manualToolActive() ? 'crosshair' : '';
       updateStatus();
     };
 
@@ -166,6 +197,9 @@ function installUi() {
     host.appendChild(status);
   }
 
+  preview.addEventListener('contextmenu', event => {
+    if (panContextActive()) event.preventDefault();
+  });
   preview.addEventListener('pointerdown', beginPan, true);
   preview.addEventListener('pointermove', movePan, true);
   preview.addEventListener('pointerup', endPan, true);
@@ -178,37 +212,56 @@ function installUi() {
 
   inspection.addEventListener('change', () => {
     if (!inspection.checked) resetPan(false);
-    preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : '';
+    preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : manualToolActive() ? 'crosshair' : '';
     updateStatus();
   });
 
   document.addEventListener('keydown', event => {
-    if (event.code !== 'Space' || event.repeat) return;
-    const target = event.target as HTMLElement | null;
-    if (target?.matches('input, textarea, select, [contenteditable="true"]')) return;
-    spaceHeld = true;
-    if (panContextActive()) {
+    if (!targetAllowsShortcut(event.target)) return;
+    if (event.code === 'Space' && !event.repeat) {
+      spaceHeld = true;
+      if (panContextActive()) {
+        event.preventDefault();
+        preview.style.cursor = 'grab';
+        updateStatus();
+      }
+      return;
+    }
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const key = event.code === 'KeyW' ? 'w' : event.code === 'KeyA' ? 'a' : event.code === 'KeyS' ? 's' : event.code === 'KeyD' ? 'd' : '';
+    if (key && panContextActive()) {
+      movementKeys.add(key);
       event.preventDefault();
-      preview.style.cursor = 'grab';
-      updateStatus();
     }
   });
 
   document.addEventListener('keyup', event => {
-    if (event.code !== 'Space') return;
+    if (event.code === 'Space') {
+      spaceHeld = false;
+      if (!dragging) preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : manualToolActive() ? 'crosshair' : '';
+      updateStatus();
+      return;
+    }
+    if (event.code === 'KeyW') movementKeys.delete('w');
+    else if (event.code === 'KeyA') movementKeys.delete('a');
+    else if (event.code === 'KeyS') movementKeys.delete('s');
+    else if (event.code === 'KeyD') movementKeys.delete('d');
+  });
+
+  window.addEventListener('blur', () => {
+    movementKeys.clear();
     spaceHeld = false;
-    if (!dragging) preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : '';
-    updateStatus();
   });
 
   document.addEventListener('click', event => {
     const target = event.target as HTMLElement | null;
-    if (target?.closest('[data-manual-tool]')) setTimeout(() => {
+    if (target?.closest('[data-manual-tool],[data-view]')) setTimeout(() => {
       preview.style.cursor = panContextActive() && panMode && !manualToolActive() ? 'grab' : manualToolActive() ? 'crosshair' : '';
       updateStatus();
     }, 0);
   });
 
+  movementRaf = requestAnimationFrame(movementStep);
   updateStatus();
 }
 
