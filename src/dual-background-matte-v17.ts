@@ -1,3 +1,5 @@
+import './dual-background-matte-v17.css';
+
 const dq = <T extends HTMLElement = HTMLElement>(selector: string) => document.querySelector<T>(selector);
 
 type RGB = [number, number, number];
